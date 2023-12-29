@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Commande Management Application</title>
+  <link rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+        crossorigin="anonymous">
+  <!-- Styles omitted for brevity -->
+</head>
+<body>
+
+<header>
+  <nav class="navbar navbar-expand-md navbar-dark"
+       style="background-color: tomato">
+    <div>
+      <a href="#" class="navbar-brand"> OrderCraft - Gestion des Commandes </a>
+    </div>
+
+    <ul class="navbar-nav">
+      <li><a th:href="@{/Client/list}"
+             class="nav-link">Clients</a></li>
+      <li><a th:href="@{/Produit/list}"
+             class="nav-link">Produits</a></li>
+      <li><a th:href="@{/Commande/list}"
+             class="nav-link">Commande</a></li>
+    </ul>
+  </nav>
+</header>
+<br>
+
+<div class="row">
+  <!-- <div class="alert alert-success" *ngIf='message'>{{message}}</div> -->
+
+  <div class="container">
+    <h3 class="text-center">liste de commandes</h3>
+    <hr>
+    <div class="container text-left">
+
+      <a th:href="@{/Commande/add}" class="btn btn-success">Ajouter
+        nouveau  Commande</a>
+    </div>
+    <br>
+    <table class="table table-bordered">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Date Creation</th>
+        <th>Date Mis a jour</th>
+        <th>Nom Client</th>
+        <th>Status</th>
+        <th>Total (DH)</th>
+
+      </tr>
+      </thead>
+      <!--   for (Todo todo: todos) {  -->
+      <tr th:each="commande : ${commandes}">
+        <td th:text="${commande.uuid}"></td>
+        <td th:text="${commande.dateAjoute}"></td>
+        <td th:text="${commande.dateUpdate}"></td>
+        <td th:text="${commande.client.name}"></td>
+        <td th:class="'status-' + ${commande.commandeStatus.name().toLowerCase()}"
+            th:text="${commande.commandeStatus}"></td>
+        <td th:text="${commande.total_amount}"></td>
+        <td>
+          <button type="button" class="btn btn-primary" data-toggle="modal"
+                  data-target="#changeStatusModal" th:attr="uuid=${commande.uuid}" onclick="setCommandeId(this)">
+            Changer le statut
+          </button>
+        </td>
+        <td><a
+                th:href="@{/Commande/delete(id=${commande.uuid})}">Delete</a>
+        </td>
+        <td>
+          <button type="button" class="btn btn-primary" data-toggle="modal" th:attr="data-commande=${commande.toJson().toString()}"
+                  data-target="#detailModal" onclick="showDetail(this)">
+            Detail
+          </button>
+        </td>
+      </tr>
+      <!-- } -->
+      </tbody>
+
+    </table>
+    <!-- Inclure les fichiers JavaScript Bootstrap (jQuery requis) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <!-- Inclure les fichiers JavaScript Bootstrap (jQuery requis) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+      function setCommandeId(button) {
+
+        var uuid = button.getAttribute('uuid');
+        document.getElementById("commandeId").value = uuid;
+        // Utiliser la valeur de uuid comme nécessaire
+        console.log('UUID de la commande : ' + uuid);
+
+      }
+
+      function afficherDetails(uuid,client,produits) {
+        // Récupérer l'objet commande depuis l'attribut data-commande
+
+
+        // Utiliser l'objet commande comme nécessaire
+        console.log(uuid);
+        console.log(client);
+        console.log(produits);
+
+        // Ici, vous pouvez mettre à jour le contenu de la fenêtre modale avec les détails de la commande
+        // Par exemple, en utilisant jQuery pour manipuler le DOM
+
+      }
+      function showDetail(button) {
+        var commandeDataString = button.getAttribute('data-commande');
+
+        // Parsez la chaîne JSON en un objet JavaScript
+        var commandeObj = JSON.parse(commandeDataString);
+        $("#detailModal #uuid").innerText = commandeObj.uuid;
+
+        var table1 =
+                "<tr>" +
+                "<td>" + commandeObj.client.uuid + "</td>" +
+                "<td>" + commandeObj.client.name + "</td>" +
+                "<td>" + commandeObj.client.email + "</td>" +
+                "<td>" + commandeObj.client.adress + "</td>" +
+                "<td>" + commandeObj.client.phone + "</td>" +
+                "</tr>";
+        $("#table_client tbody").append(table1);
+        console.log(commandeObj);
+        commandeObj.produitList.forEach(produit => {
+          var table2 =
+                  "<tr>" +
+                  "<td>" + produit.uuid + "</td>" +
+                  "<td>" + produit.name + "</td>" +
+                  "<td>" + produit.description + "</td>" +
+                  "<td>" + produit.prix + "</td>" +
+                  "</tr>";
+          $("#table_produit tbody").append(table2);
+        })
+
+      }
+      $('#detailModal').on('hidden.bs.modal', function () {
+        // Code à exécuter lorsque la fenêtre modale se ferme
+        console.log("La fenêtre modale s'est fermée");
+        $("#table_client tbody").empty();
+        $("#table_produit tbody").empty();
+      });
+    </script>
+  </div>
+</div>
+</body>
+</html>
